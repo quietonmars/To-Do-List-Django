@@ -37,11 +37,11 @@ class SystemViewTest(TestCase):
         # # response = self.client.get('/api/user/')
         # self.assertEqual(response.status_code, 200)
         # print("3. user testing finish username:"+response.json()['username'])
-        #
-        # print("4.logout testing start")
-        # response = self.client.post('/api/logout/',HTTP_AUTHORIZATION='Token ' + self.token)
-        # self.assertEqual(response.status_code, 200)
-        # print("4.logout testing finish")
+
+        print("3.logout testing start")
+        response = self.client.post('/api/logout/',HTTP_AUTHORIZATION='Token ' + self.token)
+        self.assertEqual(response.status_code, 200)
+        print("3.logout testing finish")
 
         # delete user clean up
         self.user.delete()
