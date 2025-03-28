@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 
-from todolist.models import Note
+from todolist.models import Task
 from todolist.serializers import NoteSerializer
 
 

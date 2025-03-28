@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from todolist.models import Note
+from todolist.models import Task
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -16,7 +16,8 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class NoteSerializer(serializers.ModelSerializer):
+class TaskSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Note
-        fields = ['id', 'title', 'content', 'created_at', 'updated_at']
+        model = Task
+        fields = '__all__'
+        read_only_fields = ['user']
