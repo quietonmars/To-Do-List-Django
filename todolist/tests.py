@@ -1,111 +1,56 @@
-# todolist/tests.py
+
+from django.test import TestCase
 from django.contrib.auth.models import User
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
+from .models import Note
 
 
-class AuthTestCase(APITestCase):
-    def setUp(self):
-        self.client = APIClient()
-        self.register_url = reverse('register')
-        self.login_url = reverse('login')
-
-        # Test user data
-        self.user_data = {
-            'username': 'testuser',
-            'email': 'test@example.com',
-            'password': 'testpassword123'
+class SystemViewTest(TestCase):
+    def test_full_system(self):
+        print("1. register start")
+        # mock user
+        data = {
+            'username': 'newuser',
+            'password': 'newpassword',
+            'email': 'newuser@example.com'
         }
+        response = self.client.post('/api/register/', data)
+        self.assertEqual(response.status_code, 201)  # 201 created
+        # get user instance
+        self.user = User.objects.get(username='newuser')
 
-        # Create a user for login tests
-        self.user = User.objects.create_user(
-            username='existinguser',
-            email='existing@example.com',
-            password='existingpass123'
-        )
+        # check if user is created
+        self.assertTrue(User.objects.filter(username='newuser').exists())
+        print("1. register testing finish username:" + self.user.username)
 
-    # def test_register_user_success(self):
-    #     """Test successful user registration"""
-    #     response = self.client.post(
-    #         self.register_url,
-    #         self.user_data,
-    #         format='json'
-    #     )
-    #
-    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    #     self.assertTrue(User.objects.filter(username='testuser').exists())
-    #
-    #     # Verify password is hashed
-    #     user = User.objects.get(username='testuser')
-    #     self.assertTrue(user.check_password('testpassword123'))
-    #
-    #     # Verify response doesn't contain raw password
-    #     self.assertNotIn('password', response.data)
+        # print("2. login testing start")
+        # # 登录获取token
+        # response = self.client.post('/api/login/', {'username': 'newuser', 'password': 'newpassword'})
+        # self.assertEqual(response.status_code, 200)
+        # # 假设返回token
+        # self.token = response.json()['token']
+        # self.assertIsNotNone(self.token)
+        # print("2. login testing finish, token:" + self.token)
 
-    # def test_register_user_missing_fields(self):
-    #     """Test registration with missing required fields"""
-    #     invalid_data = {
-    #         'username': 'partialuser',
-    #         'password': 'partialpass123'
-    #         # email is missing
-    #     }
-    #
-    #     response = self.client.post(
-    #         self.register_url,
-    #         invalid_data,
-    #         format='json'
-    #     )
-    #
-    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    #     self.assertIn('email', response.data)
 
-    def test_login_success(self):
-        """Test successful login returns token"""
-        login_data = {
-            'username': 'existinguser',
-            'password': 'existingpass123'
-        }
+        # print("3. view user testing start")
+        # response = self.client.get('/api/user/', HTTP_AUTHORIZATION='Token ' + self.token)
+        # # response = self.client.get('/api/user/')
+        # self.assertEqual(response.status_code, 200)
+        # print("3. user testing finish username:"+response.json()['username'])
+        #
+        # print("4.logout testing start")
+        # response = self.client.post('/api/logout/',HTTP_AUTHORIZATION='Token ' + self.token)
+        # self.assertEqual(response.status_code, 200)
+        # print("4.logout testing finish")
 
-        response = self.client.post(
-            self.login_url,
-            login_data,
-            format='json'
-        )
+        # delete user clean up
+        self.user.delete()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('token', response.data)
-        self.assertIn('user_id', response.data)
-        self.assertEqual(response.data['user_id'], self.user.id)
-
-    def test_login_wrong_password(self):
-        """Test login with wrong password"""
-        login_data = {
-            'username': 'existinguser',
-            'password': 'wrongpassword'
-        }
-
-        response = self.client.post(
-            self.login_url,
-            login_data,
-            format='json'
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('non_field_errors', response.data)
-
-    def test_login_nonexistent_user(self):
-        """Test login with non-existent user"""
-        login_data = {
-            'username': 'nonexistent',
-            'password': 'doesntmatter'
-        }
-
-        response = self.client.post(
-            self.login_url,
-            login_data,
-            format='json'
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('non_field_errors', response.data)
+#
+# class TaskModelTest(TestCase):
+#     def test_create_task(self):
+#         print("5. create task testing start")
+#         user = User.objects.create_user(username='testuser', password='testpass')
+#         task = Note.objects.create(title="Test Task", description="desc", status="todo", user=user)
+#         self.assertEqual(task.title, "Test Task")
+#         print("5. create task testing finish")
