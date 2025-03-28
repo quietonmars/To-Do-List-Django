@@ -3,15 +3,15 @@ from urllib import request
 from django.shortcuts import render
 
 # Create your views here.
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from todolist.models import Note
-from todolist.serializers import UserSerializer, NoteSerializer
+from todolist.models import Task
+from todolist.serializers import UserSerializer, TaskSerializer
 
 
 class RegisterView(generics.CreateAPIView):
@@ -40,4 +40,15 @@ class UserView(generics.RetrieveAPIView):
     def get_object(self):
         return self.request.user
 
+class CreateTaskView(generics.CreateAPIView):
+    queryset = Task.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = TaskSerializer
 
+class TaskViewSet(viewsets.ModelViewSet):
+    serializer_class = TaskSerializer
+    def get_queryset(self):
+        return Task.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
