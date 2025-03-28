@@ -9,27 +9,27 @@ class SystemViewTest(TestCase):
         print("1. register start")
         # mock user
         data = {
-            'username': 'newuser',
-            'password': 'newpassword',
-            'email': 'newuser@example.com'
+            'username': 'mason1',
+            'password': 'mason123',
+            'email': 'mason@example.com'
         }
         response = self.client.post('/api/register/', data)
         self.assertEqual(response.status_code, 201)  # 201 created
         # get user instance
-        self.user = User.objects.get(username='newuser')
+        self.user = User.objects.get(username='mason1')
 
         # check if user is created
-        self.assertTrue(User.objects.filter(username='newuser').exists())
+        self.assertTrue(User.objects.filter(username='mason1').exists())
         print("1. register testing finish username:" + self.user.username)
 
-        # print("2. login testing start")
-        # # 登录获取token
-        # response = self.client.post('/api/login/', {'username': 'newuser', 'password': 'newpassword'})
-        # self.assertEqual(response.status_code, 200)
-        # # 假设返回token
-        # self.token = response.json()['token']
-        # self.assertIsNotNone(self.token)
-        # print("2. login testing finish, token:" + self.token)
+        print("2. login testing start")
+
+        response = self.client.post('/api/login/', {'username': 'mason1', 'password': 'mason123'})
+        self.assertEqual(response.status_code, 200)
+
+        self.token = response.json()['token']
+        self.assertIsNotNone(self.token)
+        print("2. login testing finish, token:" + self.token)
 
 
         # print("3. view user testing start")
